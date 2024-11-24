@@ -99,6 +99,17 @@ nav .menu span {
     margin: .2rem .5rem;
   }
 }
+
+.card {
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  max-width: 300px;
+  margin: 10px;
+  padding: 20px;
+  display: inline-block;
+  box-shadow: 5px 5px 5px #00000014;
+}
 </style>
 </head>
 <body>
@@ -35129,27 +35140,30 @@ parcelHelpers.export(exports, "QrScanner", ()=>QrScanner);
 var _jsxDevRuntime = require("react/jsx-dev-runtime");
 var _react = require("react");
 var _reactDefault = parcelHelpers.interopDefault(_react);
+var _card = require("../Card");
+var _cardDefault = parcelHelpers.interopDefault(_card);
 const QrScanner = ()=>{
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-        children: [
-            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
-                children: "QrScanner"
+        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _cardDefault.default), {
+            title: "QR Scanner",
+            description: "Scan the QR code to check in",
+            link: "/",
+            linkText: "Back",
+            children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                children: " Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea delectus soluta corrupti, modi reiciendis temporibus laborum deleniti? Deserunt quidem quaerat at itaque ut eum commodi expedita fugit ea eligendi, impedit sequi beatae non reiciendis modi excepturi obcaecati dignissimos error nam? Vitae aperiam ipsam voluptatem? Error dolorum omnis voluptatum repellat ea, deserunt doloremque. Qui libero rem mollitia accusamus fuga ad veniam error minus impedit eos officiis tempore eum magnam est, labore placeat, pariatur veritatis dignissimos? Sed iure nostrum ratione maxime veniam quam dolore quis illo quos libero beatae, incidunt labore ea delectus amet molestias ducimus similique. Ullam vitae et a illo. "
             }, void 0, false, {
                 fileName: "src/components/Pages/QrScanner.jsx",
-                lineNumber: 6,
-                columnNumber: 7
-            }, undefined),
-            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
-                children: "This is the qr scanner page."
-            }, void 0, false, {
-                fileName: "src/components/Pages/QrScanner.jsx",
-                lineNumber: 7,
-                columnNumber: 7
+                lineNumber: 13,
+                columnNumber: 9
             }, undefined)
-        ]
-    }, void 0, true, {
+        }, void 0, false, {
+            fileName: "src/components/Pages/QrScanner.jsx",
+            lineNumber: 7,
+            columnNumber: 7
+        }, undefined)
+    }, void 0, false, {
         fileName: "src/components/Pages/QrScanner.jsx",
-        lineNumber: 5,
+        lineNumber: 6,
         columnNumber: 5
     }, undefined);
 };
@@ -35162,7 +35176,78 @@ $RefreshReg$(_c, "QrScanner");
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}],"3oPtO":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","../Card":"lWrQs"}],"lWrQs":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$76e8 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+$parcel$ReactRefreshHelpers$76e8.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "default", ()=>Card);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+function Card({ title, description, image, link, linkText, children }) {
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "card",
+        children: [
+            image && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
+                src: image,
+                alt: title
+            }, void 0, false, {
+                fileName: "src/components/Card.jsx",
+                lineNumber: 4,
+                columnNumber: 23
+            }, this),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "card-body",
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h2", {
+                        children: title
+                    }, void 0, false, {
+                        fileName: "src/components/Card.jsx",
+                        lineNumber: 6,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                        children: description
+                    }, void 0, false, {
+                        fileName: "src/components/Card.jsx",
+                        lineNumber: 7,
+                        columnNumber: 17
+                    }, this),
+                    children,
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("a", {
+                        href: link,
+                        children: linkText
+                    }, void 0, false, {
+                        fileName: "src/components/Card.jsx",
+                        lineNumber: 9,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/Card.jsx",
+                lineNumber: 5,
+                columnNumber: 13
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "src/components/Card.jsx",
+        lineNumber: 3,
+        columnNumber: 9
+    }, this);
+}
+_c = Card;
+var _c;
+$RefreshReg$(_c, "Card");
+
+  $parcel$ReactRefreshHelpers$76e8.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"iTorj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}],"3oPtO":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$0168 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 var prevRefreshReg = window.$RefreshReg$;
 var prevRefreshSig = window.$RefreshSig$;
