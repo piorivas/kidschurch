@@ -1,17 +1,107 @@
-import React from "react";
-import Card from "../Card";
+import React, { useState } from "react";
+import Html5Scanner from "../Html5Scanner";
+import Logs from "../Logs";
+import ModalYesNo from "../Modal/ModalYesNo";
+import { handleQrScan } from "../../utils/QrScannerHandler";
+import { useNavigate } from "react-router-dom";
+import { utils } from "../../utils/Utilities";
+import useDatabase from "../../hooks/useDatabase";
 
 export const QrScanner = () => {
+  const [logs, setLogs] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [qrCode, setQrCode] = useState("");
+  const navigate = useNavigate();
+  const { request } = useDatabase(); // Call useDatabase hook here
+
+  const validateQRCode = (qrCode) => {
+    console.log("QR Code: ", qrCode);
+    const qrData = qrCode.split('||');
+    if (qrData.length !== 4) {
+      if (qrCode.startsWith("https://nxtgen.short.gy/v1?register=")) {
+        setQrCode(qrCode);
+        setShowModal(true);
+      }
+      console.log("QR Invalid");
+      return false;
+    }
+    console.log("QR Valid");
+    return true;
+  };
+
+  const insertTempLog = (code, time) => {
+    setLogs(
+      (prevLogs) => [{
+        scan: "Loading...",
+        id: code,
+        timestamp: time.toLocaleString('en-US', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit', 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit', 
+          hour12: false 
+        }),
+      }, ...prevLogs].slice(0, 100)
+    );
+  };
+
+  const updateTempLog = (newLog) => {
+    console.log("New Log: ", newLog);
+    setLogs((prevLogs) => {
+      prevLogs[0] = newLog;
+      return [...prevLogs];
+    });
+  };
+
+  const handleScanSuccess = async (qrText) => {
+    const timestamp = new Date();
+    if (validateQRCode(qrText)) {
+      insertTempLog(qrText.split('||')[3], timestamp);
+      try {
+        updateTempLog(await handleQrScan(qrText, request, timestamp)); // Pass request to handleQrScan
+      } catch (error) {
+        console.error(error);
+        updateTempLog({
+          scan: "Error: " + error.message,
+          id: qrText.split('||')[3],
+          timestamp: timestamp.toLocaleString('en-US', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: false 
+          }),
+        });
+      }
+    }
+  };
+
+  const handleModalYes = () => {
+    navigate(qrCode);
+    setShowModal(false);
+  };
+
+  const handleModalNo = () => {
+    setShowModal(false);
+  };
+
   return (
-    <div>
-      <Card
-        title="QR Scanner"
-        description="Scan the QR code to check in"
-        link="/"
-        linkText="Back"
-      >
-        <p> Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea delectus soluta corrupti, modi reiciendis temporibus laborum deleniti? Deserunt quidem quaerat at itaque ut eum commodi expedita fugit ea eligendi, impedit sequi beatae non reiciendis modi excepturi obcaecati dignissimos error nam? Vitae aperiam ipsam voluptatem? Error dolorum omnis voluptatum repellat ea, deserunt doloremque. Qui libero rem mollitia accusamus fuga ad veniam error minus impedit eos officiis tempore eum magnam est, labore placeat, pariatur veritatis dignissimos? Sed iure nostrum ratione maxime veniam quam dolore quis illo quos libero beatae, incidunt labore ea delectus amet molestias ducimus similique. Ullam vitae et a illo. </p>
-      </Card>
+    <div className="flex flex-col md:flex-row p-5 min-h-screen bg-gray-100">
+      <div className="flex justify-center ">
+        <Html5Scanner onScanSuccess={handleScanSuccess} />
+      </div>
+      <Logs logs={logs} />
+      {showModal && (
+        <ModalYesNo
+          message="Would you like to open kids registration page?"
+          onYes={handleModalYes}
+          onNo={handleModalNo}
+        />
+      )}
     </div>
-  )
-}
+  );
+};

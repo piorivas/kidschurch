@@ -4,3 +4,4 @@ export * from './Volunteers';
 export * from './QrScanner';
 export * from './KidsForm';
 export * from './VolunteerForm';
+export * from './Attendance';

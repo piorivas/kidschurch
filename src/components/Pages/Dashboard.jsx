@@ -1,10 +1,18 @@
 import React from "react";
+import DigitalClock from "../DigitalClock";
+import StatisticsCard from "../StatisticsCard";
+import BirthdayCard from "../BirthdayCard";
+import FirstTimersCard from "../FirstTimersCard";
 
 export const Dashboard = () => {
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>This is the dashboard page.</p>
+    <div className="flex flex-col bg-gray-50">
+      <DigitalClock />
+      <StatisticsCard />
+      <div className="flex flex-col items-center md:items-start md:flex-row justify-center">
+        <BirthdayCard />
+        <FirstTimersCard />
+      </div>
     </div>
-  )
-}
+  );
+};
