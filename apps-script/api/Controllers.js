@@ -109,7 +109,6 @@ function updateUniqueRow(entity, data, index) {
 }
 
 function updateRowProfile(entity, data) {
-  console.log('birthday upon receiving', data.birthday);
   var id = parseInt(data.id, 10);
   if (id === '' || id === undefined || !Number.isInteger(id)) {
     throw new Error('Invalid id field');
@@ -243,8 +242,37 @@ function readRowProfile(entity, id) {
   const cols = utils.colCount(sheet);
   const headers = utils.headers(sheet);
   const data = sheet.getRange(row, 1, 1, cols).getDisplayValues();
-  console.log('data from readRowProfile', data);
   return transform(entity, data[0], id , headers);
+}
+
+function getFirstTimers(entity, data) {
+  const sheet = spreadsheet.getSheetByName(entity);
+  if (sheet === null) {
+    throw new Error(utils.properCase(entity) +' sheet not found');
+  }
+  const headers = utils.headers(sheet);
+  const dataRange = sheet.getDataRange().getValues();
+  const date = new Date(data.date);
+
+  const results = [];
+  let matchFound = false;
+
+  for (let rowIndex = dataRange.length - 1; rowIndex >= 0; rowIndex--) {
+    const row = dataRange[rowIndex];
+    const transformedRow = JSON.parse(transform(entity, row, rowIndex + 1, headers));
+    const split = transformedRow.timestamp.split(' ');
+    const joinedDate = split[0] + ' ' + split[1] + ' ' + split[2];
+    const currentDate = Utilities.formatDate(date, "Asia/Manila", "MMMM d, yyyy");
+
+    if (joinedDate === currentDate) {
+      results.push(transformedRow);
+      matchFound = true;
+    } else if (matchFound) {
+      break;
+    }
+  }
+
+  return JSON.stringify(results);
 }
 
 function getBirthday(entity, data) {
@@ -262,30 +290,24 @@ function getBirthday(entity, data) {
 
   const results = dataRange.map((row, rowIndex) => {
     const transformedRow = JSON.parse(transform(entity, row, rowIndex + 1, headers));
-    const rowDate = new Date(transformedRow.birthday);
-    const rowMonthDay = `${rowDate.getMonth() + 1}-${rowDate.getDate()}`;
-    const startMonthDay = `${startDate.getMonth() + 1}-${startDate.getDate()}`;
-    const endMonthDay = `${endDate.getMonth() + 1}-${endDate.getDate()}`;
-
-    if (isDateInRange(rowMonthDay, startMonthDay, endMonthDay)) {
+    const bdayMonthDay = transformedRow.birthday.slice(0, transformedRow.birthday.length - 4);
+    const birthday = new Date(bdayMonthDay + date.getFullYear());
+    const bithhdayLastYear = new Date(bdayMonthDay + (date.getFullYear() - 1));
+    const birthdayNextYear = new Date(bdayMonthDay + (date.getFullYear() + 1));
+    if (startDate <= birthday && birthday <= endDate) {
       return transformedRow;
     }
+    if (startDate <= bithhdayLastYear && bithhdayLastYear <= endDate) {
+      return transformedRow;
+    }
+    if (startDate <= birthdayNextYear && birthdayNextYear <= endDate) {
+      return transformedRow;
+    }
+
     return null;
   }).filter(row => row !== null);
 
   return JSON.stringify(results);
-}
-
-function isDateInRange(date, start, end) {
-  const [startMonth, startDay] = start.split('-').map(Number);
-  const [endMonth, endDay] = end.split('-').map(Number);
-  const [dateMonth, dateDay] = date.split('-').map(Number);
-
-  if (startMonth === endMonth) {
-    return dateMonth === startMonth && dateDay >= startDay && dateDay <= endDay;
-  } else {
-    return (dateMonth === startMonth && dateDay >= startDay) || (dateMonth === endMonth && dateDay <= endDay);
-  }
 }
 
 function checkRow(entity, id) {
@@ -306,14 +328,13 @@ function checkRow(entity, id) {
 }
 
 function readAll(entity, filters = {}) {
-  console.log('readAll filters', filters);
   const sheet = spreadsheet.getSheetByName(entity);
+  if (sheet === null) {
+    throw new Error(utils.properCase(entity) +' sheet not found');
+  }
   const data = sheet.getDataRange().getValues();
   const headers = data.shift();
-  console.log('data', data);
   const results = data.map((row, rowIndex) => {
-    console.log('before transform', row);
-    console.log('after transform', transform(entity, row, rowIndex + 1, headers));
     return JSON.parse(transform(entity, row, rowIndex + 1, headers));
   });
   // Apply filters
@@ -325,8 +346,7 @@ function readAll(entity, filters = {}) {
       if (key === 'id') {
         return row[key] == filters[key];
       }
-      console.log('row', row);
-      console.log('evaluates to', row[key] && row[key].toString().toLowerCase().includes(filters[key].toString().toLowerCase()));
+      
       return row[key] && row[key].toString().toLowerCase().includes(filters[key].toString().toLowerCase());
     });
   });

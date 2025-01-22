@@ -11,6 +11,7 @@ import { KidSignUp } from './components/Pages/KidSignUp'
 import { KidIds } from './components/Pages/KidIds'
 import { QrScanner } from './components/Pages/QrScanner'
 import { Attendance } from './components/Pages/Attendance'
+import { AttendancePrint } from './components/Pages/AttendancePrint'
 import { Login } from './components/Pages/Login'
 import Nav from './components/Nav'
 
@@ -56,6 +57,8 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/scanner" element={<QrScanner />} />
                 <Route path="/attendance" element={<Attendance />} />
+                <Route path="/attendance/date/:date/service/:service/level/:level" element={<Attendance />} />
+                <Route path="/attendance/print/date/:date/service/:service/level/:level" element={<AttendancePrint />} />
                 <Route path="/profile" element={<VolunteerProfile />} />
                 {access?.users?.includes('view') && <Route path="/volunteers" element={<Volunteers />} />}
                 {access?.users?.includes('view') && <Route path="/volunteers/:id" element={<VolunteerDetails />} />}

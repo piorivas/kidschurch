@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import DatePicker from "./HtmlDatePicker";
 import useDatabase from "../hooks/useDatabase";
+import { useNavigate, useParams } from "react-router-dom";
+import Reload from "./Reload";
 
 export default function StatisticsCard() {
     const dateFormat = { year: 'numeric', month: 'long', day: '2-digit' };
@@ -55,13 +57,15 @@ export default function StatisticsCard() {
             startRange: "01:30:00 PM",
             endRange: "04:30:00 PM"
         },
-        "Fourth Service" : {
-            label: "Fourth Service",
-            value: "07:00:00 PM",
-            startRange: "05:30:00 PM",
-            endRange: "08:30:00 PM"
-        }
+        // For testing only
+        // "Fourth Service" : {
+        //     label: "Fourth Service",
+        //     value: "07:00:00 PM",
+        //     startRange: "05:30:00 PM",
+        //     endRange: "08:30:00 PM"
+        // }
     };
+    const navigate = useNavigate();
 
     const fetchData = async () => {
         try {
@@ -71,7 +75,6 @@ export default function StatisticsCard() {
               action: 'Check-in'
             })
             const parsedData = JSON.parse(response);
-            console.log('logs_kids parsed data', parsedData);
             let serviceData = parsedData.filter(data => {
                 let dummyDate = 'January 1, 1970 ';
                 let time = new Date(dummyDate + data.time);
@@ -80,39 +83,35 @@ export default function StatisticsCard() {
 
                 return time >= timeFrom && time <= timeTo;
             });
-            console.log('filtered', serviceData);
             var tempStatData = dataReset;
-            console.log('tempStatData reset', tempStatData);
             serviceData.forEach(data => {
                 if (tempStatData[data.level]) {
-                    console.log('exists in tempStatData', data.level);
                     tempStatData[data.level].total += 1;
-                    console.log('tempStatData increment', tempStatData[data.level].total);  
                     if (data.firstTimer) {
                         tempStatData[data.level].firstTimers += 1;
                     }
                 }
             });
-            console.log('tempStatData after tally', tempStatData);
             const responseUsers = await request('logs_users', 'GETALL', {date: date});
             const parsedUsers = JSON.parse(responseUsers);
-            console.log(parsedUsers);
             let serviceUsers = parsedUsers.filter(user => {
                 return user.time >= services[service].startRange && user.time <= services[service].endRange;
             });
-            console.log(serviceUsers);
             serviceUsers.forEach(user => {
                 if (tempStatData[user.level]) {
                     tempStatData[user.level].lifeshapers += 1;
                 }
             });
-            console.log(tempStatData);
             setStatData(tempStatData);
             setLoading(false);
         } catch (error) {
             setLoading(false);
             console.error("Failed to fetch data: ", error);
         }
+    };
+
+    const openAttendance = (level) => () => {
+        navigate(`/attendance/date/${encodeURIComponent(date)}/service/${encodeURIComponent(service)}/level/${encodeURIComponent(level)}`);
     };
     
     const setFormatedDate = (date) => {
@@ -149,9 +148,12 @@ export default function StatisticsCard() {
                             ))}
                         </select>
                     </div>
+                    <div className="mt-3 flex justify-center items-center">
+                        <Reload refreshData={fetchData} loading={loading} className="m-2"/>
+                    </div>
                 </div>
             </div>
-            <div className="mt-10 pb-1">
+            <div className="mt-4 pb-1">
                 <div className="relative">
                     <div className="absolute inset-0 h-1/2 bg-gray-50"></div>
                     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -159,8 +161,8 @@ export default function StatisticsCard() {
                             <dl className="rounded-xl bg-white shadow-lg sm:flex sm:flex-row sm:rounded-2xl justify-center">
                                 {Object.keys(statData).map((data, index) => (
                                     <div key={index} className="flex flex-col border-b-2 border-b border-gray-200 p-6 text-center md:border-r md:border-r-2 md:w-56">
-                                        <dd className="text-5xl font-bold text-gray-500">{statData[data].total}</dd>
-                                        <dt className="mt-2 text-lg leading-6 font-medium text-gray-500">{statData[data].level}</dt>
+                                        <dd className="text-5xl font-bold text-gray-500 hover:text-cyan-800 cursor-pointer " onClick={openAttendance(statData[data].level)}>{statData[data].total}</dd>
+                                        <dt className="mt-2 text-lg leading-6 font-medium text-gray-500 hover:text-cyan-800 cursor-pointer " onClick={openAttendance(statData[data].level)}>{statData[data].level}</dt>
                                         <div className="mt-2 flex items-center justify-center text-sm text-gray-500">
                                             <span className="inline-flex items-center"> First Timers </span>
                                             <span className="inline-block bg-gray-200 rounded-full px-3 py-0.5 text-xs font-medium leading-4 text-gray-800 ml-2">{statData[data].firstTimers}</span>
@@ -176,13 +178,13 @@ export default function StatisticsCard() {
                     </div>
                 </div>
             </div>
-            {loading && (
+            {/* {loading && (
                 <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-4 rounded-lg shadow-lg">
                         <h2 className="text-lg font-semibold text-gray-500">Loading...</h2>
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     );
 }

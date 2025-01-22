@@ -38,6 +38,9 @@ function apiFetch(entity, method, body = {}, token = null)
   } else if ('GETBDAY' == method ) {
     validateAccess(entity, 'view');
     return getBirthday(entity, body);
+  } else if ('GETFIRSTTIMERS' == method ) {
+    validateAccess(entity, 'view');
+    return getFirstTimers(entity, body);
   } else {
     console.error("Invalid method. ");
   }

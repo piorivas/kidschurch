@@ -1,21 +1,50 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import useDatabase from "../../hooks/useDatabase";
 import Reload from "../Reload";
 import Search from "../Search";
 import DatePicker from "../HtmlDatePicker";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const Attendance = () => {
+  const { date: paramDate, service: paramService, level:paramLevel } = useParams();
+  const services = {
+      "First Service" : {
+          label: "First Service",
+          value: "09:00:00 AM",
+          startRange: "07:30:00 AM",
+          endRange: "10:30:00 AM"
+      },
+      "Second Service" : {
+          label: "Second Service",
+          value: "12:00:00 PM",
+          startRange: "10:30:00 AM",
+          endRange: "01:30:00 PM"
+      },
+      "Third Service" : {
+          label: "Third Service",
+          value: "03:00:00 PM",
+          startRange: "01:30:00 PM",
+          endRange: "04:30:00 PM"
+      },
+      // For testing only
+      // "Fourth Service" : {
+      //     label: "Fourth Service",
+      //     value: "07:00:00 PM",
+      //     startRange: "05:30:00 PM",
+      //     endRange: "08:30:00 PM"
+      // }
+  };
+  const levels = ["Age 0-3", "Age 4-6", "Age 7-9", "Age 10-12"];
   const dateFormat = { year: 'numeric', month: 'long', day: '2-digit' };
-  // const [date, setDate] = useState(new Date().toLocaleDateString('en-US', dateFormat));
-  //for demo purposes, set the date to a fixed date
-  const [date, setDate] = useState('December 23, 2024');
-  const [level, setLevel] = useState("Age 0-3");
-  const selectRef = useRef(null);
+  const [date, setDate] = useState(paramDate ?? new Date().toLocaleDateString('en-US', dateFormat));
+  const [level, setLevel] = useState(paramLevel ?? levels[0]);
   const [searchTerm, setSearchTerm] = useState("");
   const [kids, setKids] = useState([]);
   const [filteredKids, setFilteredKids] = useState([]);
+  const [service, setService] = useState(paramService ?? services["First Service"].label);
   const [loading, setLoading] = useState(false);
   const { request } = useDatabase();
+  const navigate = useNavigate();
   var counter = 0;
 
   const setFormatedDate = (date) => {
@@ -30,7 +59,15 @@ export const Attendance = () => {
         level: level
       })
       const parsedData = JSON.parse(response);
-      setKids(parsedData);
+      let serviceData = parsedData.filter(data => {
+          let dummyDate = 'January 1, 1970 ';
+          let time = new Date(dummyDate + data.time);
+          let timeFrom = new Date(dummyDate + services[service].startRange);
+          let timeTo = new Date(dummyDate + services[service].endRange);
+
+          return time >= timeFrom && time <= timeTo;
+      });
+      setKids(serviceData);
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch data: ", error);
@@ -39,7 +76,7 @@ export const Attendance = () => {
 
   useEffect(() => {
     refreshData();
-  }, [date, level]);
+  }, [date, level, service]);
 
   useEffect(() => {
     counter = 0;
@@ -55,29 +92,33 @@ export const Attendance = () => {
   return (
   <div className="min-h-screen bg-gray-100">
     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-      <div className="p-2 gap-4 flex items-center w-full md:w-auto text-lg md:text-2xl">
+      <div className="p-2 gap-4 flex items-center w-full md:w-auto text-md md:text-xl lg:text-2xl">
         <DatePicker date={date} setDate={setFormatedDate} dateFormat={dateFormat}/>
-        <div className="relative items-center">
-          <div className="text-lg md:text-2xl">
-            <select ref={selectRef} className="appearance-none bg-gray-100/0 pl-1 pr-8 focus:outline-none"
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-            >
-              <option value="Age 0-3">Age 0-3</option>
-              <option value="Age 4-6">Age 4-6</option>
-              <option value="Age 7-9">Age 7-9</option>
-              <option value="Age 10-12">Age 10-12</option>
-            </select>
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-            className="absolute size-6 m-1 text-gray-500 cursor-pointer right-0 top-0"
-            onClick={() => selectRef.current.click()}
+        <div className="bg-white rounded-2xl p-1">
+          <select className="appearance-none bg-white/0 focus:outline-none"
+            value={level} onChange={(e) => setLevel(e.target.value)}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" onClick={() => selectRef.current.click()}/>
-          </svg>
+            {levels.map((level, index) => (
+                <option className="text-center" key={index} value={level}>{level}</option>
+            ))}
+          </select>
+        </div>
+        <div className="bg-white rounded-2xl p-1">
+          <select className="appearance-none bg-white/0 focus:outline-none"
+            value={service} onChange={(e) => setService(e.target.value)}>
+              {Object.keys(services).map((service, index) => (
+                  <option className="text-center" key={index} value={service}>{service}</option>
+              ))}
+          </select>
         </div>
       </div>
       <div className="p-2 flex gap-2 items-center w-full md:w-auto">
+        <svg onClick={() => {
+            navigate(`/attendance/print/date/${encodeURIComponent(date)}/service/${encodeURIComponent(service)}/level/${encodeURIComponent(level)}`);
+          }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 hover:text-cyan-500 cursor-pointer">
+          <title>Print IDs</title>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+        </svg>
         <Reload refreshData={refreshData} loading={loading} className="m-2"/>
         <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </div>

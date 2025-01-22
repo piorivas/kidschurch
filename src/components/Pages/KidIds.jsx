@@ -44,7 +44,6 @@ export const KidIds = () => {
     }
 
     const print = async () => {
-        console.log('Printing IDs');
         try {
             setLoadingPdf(true);
             window.open(await getPdfUrl('kids'), '_blank');

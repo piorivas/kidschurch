@@ -1,4 +1,35 @@
+import { useEffect, useState } from "react";
+import useDatabase from "../hooks/useDatabase";
+
 export default function FirstTimersCard() {
+    const { request } = useDatabase();
+    const [firstTimers, setFirstTimers] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchFirstTimers = async () => {
+        setLoading(true);
+        try {
+            const response = await request('kids', 'GETFIRSTTIMERS', {
+              date: new Date().toString()
+            })
+            let tempFirstTimers = [];
+            JSON.parse(response).forEach((firstTimer) => {
+                tempFirstTimers.push({
+                    name: firstTimer.name,
+                    group: firstTimer.level
+                });
+            });
+            setFirstTimers(tempFirstTimers);
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFirstTimers();
+    }, []);
   return (
     <div className="w-full max-w-md p-4 m-8 bg-white border border-gray-200 rounded-lg shadow-lg sm:p-8">
         <div className="flex items-center mb-4 gap-2">
@@ -7,87 +38,34 @@ export default function FirstTimersCard() {
         </svg>
 
             <h5 className="text-xl font-bold leading-none text-gray-900">First Timers</h5>
-            {/* <a href="#" className="text-sm font-medium text-blue-600 hover:underline ">
-                View all
-            </a> */}
+            {loading ? (
+                <div className="w-6 h-6 border-t-2 border-b-2 border-gray-900 rounded-full animate-spin"></div>
+            )
+            : (
+                <a onClick={fetchFirstTimers} className="text-sm font-medium text-blue-600 hover:underline cursor-pointer">
+                    Refresh
+                </a>
+            )}
         </div>
         <div className="flow-root">
                 <ul role="list" className="divide-y divide-gray-200">
-                    <li className="py-3 sm:py-4">
-                        <div className="flex items-center">
+                    {firstTimers.map((firstTimer, index) => (
+                        <li className="py-3 sm:py-4" key={index}>
+                        <div className="flex items-center ">
                             <div className="flex-shrink-0">
                                 <img className="w-8 h-8 rounded-full" src="https://i.ibb.co/rw7qcCt/png-transparent-avatar-child-computer-icons-user-profile-smiling-boy-child-face-heroes-thumbnail.png" alt="Neil image" />
                             </div>
                             <div className="flex-1 min-w-0 ms-4">
                                 <p className="text-sm font-medium text-gray-900 truncate">
-                                    Neil Sims
+                                    {firstTimer.name}
                                 </p>
                             </div>
                             <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                                Age 0-3
+                                {firstTimer.group}
                             </div>
                         </div>
                     </li>
-                    <li className="py-3 sm:py-4">
-                        <div className="flex items-center ">
-                            <div className="flex-shrink-0">
-                                <img className="w-8 h-8 rounded-full" src="https://i.ibb.co/rw7qcCt/png-transparent-avatar-child-computer-icons-user-profile-smiling-boy-child-face-heroes-thumbnail.png" alt="Bonnie image"/>
-                            </div>
-                            <div className="flex-1 min-w-0 ms-4">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                    Bonnie Green
-                                </p>
-                            </div>
-                            <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                                Age 4-6
-                            </div>
-                        </div>
-                    </li>
-                    <li className="py-3 sm:py-4">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <img className="w-8 h-8 rounded-full" src="https://i.ibb.co/rw7qcCt/png-transparent-avatar-child-computer-icons-user-profile-smiling-boy-child-face-heroes-thumbnail.png" alt="Michael image"/>
-                            </div>
-                            <div className="flex-1 min-w-0 ms-4">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                    Michael Gough
-                                </p>
-                            </div>
-                            <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                                Age 7-9
-                            </div>
-                        </div>
-                    </li>
-                    <li className="py-3 sm:py-4">
-                        <div className="flex items-center ">
-                            <div className="flex-shrink-0">
-                                <img className="w-8 h-8 rounded-full" src="https://i.ibb.co/rw7qcCt/png-transparent-avatar-child-computer-icons-user-profile-smiling-boy-child-face-heroes-thumbnail.png" alt="Lana image"/>
-                            </div>
-                            <div className="flex-1 min-w-0 ms-4">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                    Lana Byrd
-                                </p>
-                            </div>
-                            <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                                Age 10-12
-                            </div>
-                        </div>
-                    </li>
-                    <li className="pt-3 pb-0 sm:pt-4">
-                        <div className="flex items-center ">
-                            <div className="flex-shrink-0">
-                                <img className="w-8 h-8 rounded-full" src="https://i.ibb.co/rw7qcCt/png-transparent-avatar-child-computer-icons-user-profile-smiling-boy-child-face-heroes-thumbnail.png" alt="Thomas image"/>
-                            </div>
-                            <div className="flex-1 min-w-0 ms-4">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                    Thomes Lean
-                                </p>
-                            </div>
-                            <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                                Age 10-12
-                            </div>
-                        </div>
-                    </li>
+                    ))}
                 </ul>
         </div>
     </div>

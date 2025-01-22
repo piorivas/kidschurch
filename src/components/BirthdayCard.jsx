@@ -9,10 +9,7 @@ export default function BirthdayCard() {
     const fetchCelebrants = async () => {
         setLoading(true);
         try {
-            const date = new Date().toLocaleDateString('en-US', {
-                month: 'short',
-                day: '2-digit'
-            });
+            const date = new Date().toString();
             const response = await request('kids', 'GETBDAY', {
               date: date,
             })
@@ -58,7 +55,7 @@ export default function BirthdayCard() {
                 <div className="w-6 h-6 border-t-2 border-b-2 border-gray-900 rounded-full animate-spin"></div>
             )
             : (
-                <a onClick={fetchCelebrants} className="text-sm font-medium text-blue-600 hover:underline ">
+                <a onClick={fetchCelebrants} className="text-sm font-medium text-blue-600 hover:underline cursor-pointer">
                     Refresh
                 </a>
             )}
