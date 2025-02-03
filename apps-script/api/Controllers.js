@@ -1,7 +1,4 @@
 function createRow(entity, data) {
-  if (!hasAccess(jwtToken, entity, 'create')) {
-    throw new Error('Unauthorized');
-  }
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
     throw new Error(utils.properCase(entity) +' sheet not found');
@@ -25,9 +22,6 @@ function createRow(entity, data) {
 }
 
 function createUniqueRow(entity, data, index) {
-  if (!hasAccess(jwtToken, entity, 'create')) {
-    throw new Error('Unauthorized');
-  }
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
     throw new Error(utils.properCase(entity) +' sheet not found');
@@ -55,20 +49,24 @@ function createUniqueRow(entity, data, index) {
 }
 
 function updateRow(entity, data) {
-  if (!hasAccess(jwtToken, entity, 'update')) {
-    throw new Error('Unauthorized');
-  }
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
     throw new Error(utils.properCase(entity) +' sheet not found');
   }
 
-  var id = parseInt(data.id, 10);
-  if (id === '' || id === undefined || !Number.isInteger(id)) {
-    throw new Error('Invalid id field');
+  var row = data.row ? parseInt(data.row, 10) : null;
+  var id = data.id ? parseInt(data.id, 10) : null;
+
+  if (row === null && (id === '' || id === undefined || !Number.isInteger(id))) {
+    throw new Error('Invalid id or row field');
   }
-  //skip the header row
-  const row = id + 1;
+
+  // If row is not provided, calculate it using id
+  if (row === null) {
+    row = id + 1;
+  }
+
+  // Skip the header row
   const cols = utils.colCount(sheet);
   const headers = utils.headers(sheet);
   const range = sheet.getRange(row, 1, 1, cols);
@@ -76,13 +74,46 @@ function updateRow(entity, data) {
   var values = headers.map(header => data[header] || rowValues[0][headers.indexOf(header)]);
   range.setValues([values]);
 
-  return transform(entity, data, id, headers);
+  return transform(entity, data, row - 1, headers);
+}
+
+function updateRows(entity, filters, data) {
+  const sheet = spreadsheet.getSheetByName(entity);
+  if (sheet === null) {
+    throw new Error(utils.properCase(entity) + ' sheet not found');
+  }
+
+  const dataRange = sheet.getDataRange().getValues();
+  const headers = dataRange.shift();
+  const rowsToUpdate = [];
+
+  dataRange.forEach((row, rowIndex) => {
+    const isMatch = Object.keys(filters).every(key => {
+      const colIndex = headers.indexOf(key);
+      if (colIndex === -1) {
+        return false;
+      }
+      transformedRow = JSON.parse(transform(entity, row, rowIndex + 1, headers))
+
+      return transformedRow[key] && transformedRow[key].toString().toLowerCase() === filters[key].toString().toLowerCase();
+    });
+
+    if (isMatch) {
+      rowsToUpdate.push(rowIndex + 2); // +2 to account for 0-based index and header row
+    }
+  });
+
+  rowsToUpdate.forEach(rowNum => {
+    const range = sheet.getRange(rowNum, 1, 1, headers.length);
+    const rowValues = range.getValues()[0];
+    const updatedValues = headers.map(header => data[header] || rowValues[headers.indexOf(header)]);
+    range.setValues([updatedValues]);
+  });
+
+  return rowsToUpdate.length;
 }
 
 function updateUniqueRow(entity, data, index) {
-  if (!hasAccess(jwtToken, entity, 'update')) {
-    throw new Error('Unauthorized');
-  }
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
     throw new Error(utils.properCase(entity) +' sheet not found');
@@ -226,6 +257,29 @@ function readRow(entity, id) {
   const data = sheet.getRange(row, 1, 1, cols).getValues();
   
   return transform(entity, data[0], id , headers);
+}
+
+function search(entity, filters) {
+  const sheet = spreadsheet.getSheetByName(entity);
+  if (sheet === null) {
+    throw new Error(utils.properCase(entity) +' sheet not found');
+  }
+  const data = sheet.getDataRange().getValues();
+  const headers = data.shift();
+  const results = data.map((row, rowIndex) => {
+    return JSON.parse(transform(entity, row, rowIndex + 1, headers));
+  });
+  // Apply filters
+  const filteredResults = results.filter(row => {
+    return Object.keys(filters).every(key => {
+      if (filters[key] === undefined || filters[key] === null) {
+        return true;
+      }
+      return row[key] && row[key].toString().toLowerCase().includes(filters[key].toString().toLowerCase());
+    });
+  });
+
+  return JSON.stringify(filteredResults);
 }
 
 function readRowProfile(entity, id) {

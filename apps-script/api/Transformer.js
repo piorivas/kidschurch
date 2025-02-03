@@ -11,7 +11,7 @@ function transform(entity, data, id, headers) {
         } else if (header === 'time') {
           object[header] = Utilities.formatDate(dateValue, "Asia/Manila", "hh:mm:ss a");
         } else {
-          object[header] = Utilities.formatDate(dateValue, "Asia/Manila", "MMMM d, yyyy");
+          object[header] = Utilities.formatDate(dateValue, "Asia/Manila", "MMMM dd, yyyy");
         }
       } else {
         object[header] = '';

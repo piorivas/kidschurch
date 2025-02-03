@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 const useIdCards = () => {
   const generateIds = useCallback (async (entity, ids = []) => {
+    console.log(ids);
     const token = window.localStorage.getItem('nxtgen.token');
     return new Promise((resolve, reject) => {
       google.script.run

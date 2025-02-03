@@ -3,6 +3,7 @@ import DatePicker from "./HtmlDatePicker";
 import useDatabase from "../hooks/useDatabase";
 import { useNavigate, useParams } from "react-router-dom";
 import Reload from "./Reload";
+import { Toaster } from "sonner";
 
 export default function StatisticsCard() {
     const dateFormat = { year: 'numeric', month: 'long', day: '2-digit' };
@@ -118,16 +119,21 @@ export default function StatisticsCard() {
       setDate(new Date(date).toLocaleDateString('en-US', dateFormat));
     };
 
-    useEffect(() => {
-        fetchData();
-    }, [date, service]);
-
-    useEffect(() => {
+    const countTotal = () => {
         let total = 0;
         Object.values(statData).forEach(data => {
             total += data.total;
-        });
+        }
+        );
         setTotalAttendance(total);
+    };
+
+    useEffect(() => {
+        fetchData().then(() => countTotal());
+    }, [date, service]);
+
+    useEffect(() => {
+        countTotal();
     },[statData]);
 
     return (
@@ -148,8 +154,12 @@ export default function StatisticsCard() {
                             ))}
                         </select>
                     </div>
-                    <div className="mt-3 flex justify-center items-center">
+                    <div className="mt-3 flex justify-center items-center gap-4">
                         <Reload refreshData={fetchData} loading={loading} className="m-2"/>
+                        <button 
+                            onClick={() => navigate('/scanner')} 
+                            className="p-2 px-4 bg-cyan-500 hover:bg-cyan-400 text-white rounded-full text-sm flex items-center"
+                        >Scanner</button>
                     </div>
                 </div>
             </div>
@@ -185,6 +195,7 @@ export default function StatisticsCard() {
                     </div>
                 </div>
             )} */}
+            <Toaster />
         </div>
     );
 }

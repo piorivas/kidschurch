@@ -26,7 +26,6 @@ export const VolunteerProfile = () => {
             try {
                 const response = await request('users', 'GETPROFILE');
                 const data = JSON.parse(response);
-                console.log(data);
                 setId(data.id);
                 setName(data.name);
                 setBirthday(new Date(data.birthday).toLocaleDateString('en-CA')); // Use 'en-CA' for ISO format (YYYY-MM-DD)
@@ -54,7 +53,6 @@ export const VolunteerProfile = () => {
         }
         try {
             setLoadingSave(true);
-            console.log("Birtday upon submit: ", birthday);
             await request('users', 'UPDATEPROFILE', {
                 id: id,
                 name: name,

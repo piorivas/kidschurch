@@ -154,7 +154,7 @@ export const KidDetails = () => {
                             <span className="ml-auto">
                                 { isEditing ?
                                     <input type="date"
-                                        value={birthday}
+                                        value={moment(birthday).format('YYYY-MM-DD')}
                                         onChange={(e)=>{setBirthday(e.target.value)}}
                                     /> 
                                 : birthday}

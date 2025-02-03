@@ -20,6 +20,7 @@ function generateIds(entity, ids, token) {
   var data = ids.map((id) => {
     return JSON.parse(apiFetch('kids', 'GET', {id:id}) || {id: id});
   });
+  console.log(data);
   
   removeAllSlides(kidsIdSlides);
 
@@ -100,7 +101,6 @@ function createBackPage(slides, batchData) {
       left_offset = LEFT_OFFSET_BACK + j * (CARD_WIDTH);
       top_offset = TOP_OFFSET + i * (CARD_HEIGHT);
       var childsDetails = batchData[counter];
-      console.log(childsDetails);
       if (childsDetails.name !== '') {
         slide.insertImage(
           'https://i.ibb.co/gw0gH3w/Kid-Profile.png', 

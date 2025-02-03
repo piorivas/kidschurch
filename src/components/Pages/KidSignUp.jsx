@@ -3,6 +3,8 @@ import { useParams, useSearchParams } from "react-router-dom";
 import privacyPolicy from "../../data/privacyPolicy";
 import useDatabase from "../../hooks/useDatabase";
 import DynamicModal from "../Modal/DynamicModal";
+import moment from "moment";
+import util from "../../utils/Utilities";
 
 export const KidSignUp = () => {
   const { id } = useParams();
@@ -32,6 +34,12 @@ export const KidSignUp = () => {
           }
           setLoading(false);
         } catch (error) {
+          setModalContent({
+            title: 'Check ID: Error!',
+            message: error,
+            closable: true
+          });
+          setShowSuccessModal(true);
           console.error(error);
           setLoading(false);
         }
@@ -43,14 +51,16 @@ export const KidSignUp = () => {
   const submitForm = async ({ id, name, nickname, parent, parent_contact, birthday }, resetForm) => {
     try {
       setLoading(true);
-      const response = await request('kids', id ? 'UPDATE' : 'CREATE', {
+      const now = new Date();
+      const response = await request('kids', 'KIDSIGNUP', {
         id: id,
         name: name,
         nickname: nickname,
         parent: parent,
         parent_contact: parent_contact,
         birthday: birthday,
-        status: 'Active'
+        status: 'Active',
+        timestamp: moment().format('MM/DD/YYYY HH:mm:ss')
       }, token);
       setLoading(false);
       setModalContent({
@@ -84,7 +94,7 @@ export const KidSignUp = () => {
                         nickname: form.nickname.value,
                         parent: form.parent.value,
                         parent_contact: form.parent_contact.value,
-                        birthday: form.birthday.value
+                        birthday: (new Date(form.birthday.value)).toLocaleDateString('en-US')
                       }, () => form.reset());
                     }
                   }>

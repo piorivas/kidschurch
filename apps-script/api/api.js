@@ -11,13 +11,21 @@ function apiFetch(entity, method, body = {}, token = null)
 
   if ('GET' == method){
     return readRow(entity, body.id || {});
+  } else if ('SEARCH' == method){
+    validateAccess(entity, 'view');
+    return search(entity, body);
   } else if ('GETALL' == method){
-    return readAll(entity, body);
+    return readAll(entity, body || {});
   } else if ('UPDATE' == method) {
+    validateAccess(entity, 'update');
     return updateRow(entity, body);
+  } else if ('UPDATEALL' == method) {
+    validateAccess(entity, 'update');
+    return updateRows(entity, body.filters, body.updates);
   } else if ('UPDATEUNIQUE' == method) {
     return updateUniqueRow(entity, body, body.index);
   } else if ('CREATE' == method) {
+    validateAccess(entity, 'create');
     return createRow(entity, body);
   } else if ('GETLAST' == method) {
     return readLast(entity, body);
@@ -26,10 +34,12 @@ function apiFetch(entity, method, body = {}, token = null)
   } else if ('CHECKEXIST' == method) {
     return checkRow(entity, body.id || {});
   } else if ('CREATEUNIQUE' == method ) {
+    validateAccess(entity, 'create');
     return createUniqueRow(entity, body, body.index);
   } else if ('GETPROFILE' == method ) {
     return readRowProfile(entity);
   } else if ('UPDATEPROFILE' == method ) {
+    validateAccess(entity, 'update');
     return updateRowProfile(entity, body);
   } else if ('CHANGEPASSWORD' == method ) {
     return changePassword(entity, body);
@@ -41,6 +51,8 @@ function apiFetch(entity, method, body = {}, token = null)
   } else if ('GETFIRSTTIMERS' == method ) {
     validateAccess(entity, 'view');
     return getFirstTimers(entity, body);
+  } else if ('KIDSIGNUP' == method) {
+    return createRow(entity, body);
   } else {
     console.error("Invalid method. ");
   }

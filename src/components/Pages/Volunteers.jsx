@@ -6,9 +6,8 @@ import Toggle from "../Toggle";
 import { Link } from "react-router-dom";
 
 export const Volunteers = () => {
-  // const access = JSON.parse(window.localStorage.getItem('nxtgen.access'));
   var access = JSON.parse(window.localStorage.getItem('nxtgen.access'));
-  access = {users: ['view','update','create','delete'], kids: ['view'], attendance: ['view'], scanner: ['view']};
+  // access = {users: ['view','update','create','delete'], kids: ['view'], attendance: ['view'], scanner: ['view']};
   const [searchTerm, setSearchTerm] = useState("");
   const [showActive, setShowActive] = useState(true);
   const [volunteers, setVolunteers] = useState([]);
@@ -33,7 +32,6 @@ export const Volunteers = () => {
   }, []);
 
   useEffect(() => {
-    console.log("serachTerm: ", searchTerm);
     setFilteredVolunteers(volunteers.filter(volunteer =>
       volunteer.name.toLowerCase().includes(searchTerm.toLowerCase())
       && (showActive ? volunteer.status === "Active" : true)

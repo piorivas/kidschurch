@@ -4,11 +4,9 @@ function auth(method, data) {
   spreadsheet = SpreadsheetApp.openById(
     PropertiesService.getScriptProperties().getProperty('database')
   );
-  console.log('auth', method, data);
   if ('login' == method) {
     const userData = JSON.parse(readLast('users', { username: data.username }));
     const userPassword = getPassword('users', data.username);
-    console.log('userData', userData);
     if (!userData) {
       console.error(errorMessage);
       throw error;

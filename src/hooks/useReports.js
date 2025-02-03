@@ -31,7 +31,21 @@ const useReports = () => {
     });
   },[]);
 
-  return { generateReport, getPdfUrl };
+  const getAppsScriptUrl = useCallback (async () => {
+    return new Promise((resolve, reject) => {
+        google.script.run
+          .withSuccessHandler((response) => {
+            resolve(response);
+          })
+          .withFailureHandler((error) => {
+            console.error(error);
+            reject(error);
+          })
+          .getAppsScriptUrl();
+    });
+  }, []);
+
+  return { generateReport, getPdfUrl, getAppsScriptUrl };
 }
 
 export default useReports;

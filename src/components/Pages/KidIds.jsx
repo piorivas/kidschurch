@@ -11,10 +11,9 @@ export const KidIds = () => {
 
     const generate = async () => {
         try {
-            console.log('Generating IDs');
+            console.log('text ids', idRange);
             setLoading(true);
             ids = [];
-            console.log('idRange', idRange);
             const getIds = (idRange) => {
                 const ids = [];
                 idRange.split(',').forEach((r) => {
@@ -30,7 +29,6 @@ export const KidIds = () => {
 
                 return ids;
             }
-            console.log('ids', getIds(idRange));
             await generateIds('kids', getIds(idRange));
             setLoading(false);
             document.getElementById('slides-iframe').src += '';
