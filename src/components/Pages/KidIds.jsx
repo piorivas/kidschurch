@@ -11,11 +11,9 @@ export const KidIds = () => {
 
     const generate = async () => {
         try {
-            console.log('text ids', idRange);
             setLoading(true);
-            ids = [];
             const getIds = (idRange) => {
-                const ids = [];
+                let ids = [];
                 idRange.split(',').forEach((r) => {
                     if (r.includes('-')) {
                         const [start, end] = r.split('-');
@@ -33,7 +31,7 @@ export const KidIds = () => {
             setLoading(false);
             document.getElementById('slides-iframe').src += '';
         } catch (error) {
-            console.error('error message' + error.message);
+            console.error('error message: ' + error.message);
             if (error.message === 'Error: Unauthorized') {
                 setShowLoginModal(true);
             }

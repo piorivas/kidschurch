@@ -6,6 +6,10 @@ export default function Html5Scanner({ onScanSuccess}) {
     var qrCode = null;
 
     useEffect(() => {
+        const interval = setInterval(() => {
+            qrCode = null;
+        }, 10000);
+
         const scanner = new Html5QrcodeScanner('reader',{
                 qrbox: {
                     width: 250,
@@ -23,6 +27,7 @@ export default function Html5Scanner({ onScanSuccess}) {
 
         return () => {
             scanner.clear();
+            clearInterval(interval);
         }
     },[]);
 

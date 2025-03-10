@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes , Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes , Route, Navigate, useNavigate, Link } from 'react-router-dom'
 import { Dashboard } from './components/Pages/Dashboard'
 import { Volunteers } from './components/Pages/Volunteers'
 import { VolunteerDetails } from './components/Pages/VolunteerDetails'
@@ -13,6 +13,7 @@ import { QrScanner } from './components/Pages/QrScanner'
 import { Attendance } from './components/Pages/Attendance'
 import { AttendancePrint } from './components/Pages/AttendancePrint'
 import { Login } from './components/Pages/Login'
+import { PrivacyPolicy } from './components/Pages/PrivacyPolicy'
 import Nav from './components/Nav'
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
             {!isLoggedIn && (
                 <>
                 <Route path="/login" element={<Login />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/login" />} />
                 </>
@@ -66,11 +68,20 @@ function App() {
                 {access?.kids?.includes('view') && <Route path="/kids" element={<Kids />} />}
                 {access?.kids?.includes('view') && <Route path="/kids/:id" element={<KidDetails />} />}
                 {access?.kids?.includes('view') && <Route path="/kids/print" element={<KidIds />} />}
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 </>
             )}
             <Route path="/register" element={<KidSignUp />} />
             <Route path="/register/:id" element={<KidSignUp />} />
         </Routes>
+        <div className="flex-col h-16 bg-gray-800 text-black">
+            <p className=" flex justify-center text-sm ml-4 text-gray-400">
+              <span>&copy; 2025 NXTGEN Kids Church Ministry</span>
+            </p>
+            <p className="flex justify-center text-sm ml-4 text-gray-400">
+                <Link to="/privacy-policy" className="hover:text-gray-300">Privacy Policy</Link>
+            </p>
+        </div>
     </>
 }
 

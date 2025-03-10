@@ -53,7 +53,11 @@ function apiFetch(entity, method, body = {}, token = null)
     return getFirstTimers(entity, body);
   } else if ('KIDSIGNUP' == method) {
     return createRow(entity, body);
-  } else {
+  } else if ('DELETE' == method) {
+    validateAccess(entity, 'delete');
+    return deleteRow(entity, body.id || {});
+  }
+  else {
     console.error("Invalid method. ");
   }
 

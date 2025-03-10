@@ -3,6 +3,12 @@ import { utils } from "./Utilities";
 import { toast } from "sonner";
 
 var services = null;
+var kids = [];
+let logQueue = Promise.resolve();
+
+export const init = async (request) => {
+  kids = JSON.parse(await request('kids', 'GETALL', { status: 'Active' }));
+};
 
 export const handleQrScan = async (qrText, request, timestamp, srvs) => {
   services = srvs;
@@ -26,39 +32,70 @@ const handleKidScan = async (action, code, timestamp, request) => {
     const currentTime = moment(timestamp, "hh:mm:ss A");
     return currentTime.isBetween(startTime, endTime);
   });
+
+  const sendLog = async (id, data) => {
+    const newLog = async () => {
+      await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for 2 seconds
+      request('logs_kids', 'SEARCH', {
+        id: id,
+        action: 'Check-in',
+        date: moment(timestamp).format('MMMM DD, YYYY'),
+        service: service.label
+      }).then((response) => {
+        const existingLogs = JSON.parse(response);
+        console.log(existingLogs);
+        if (existingLogs.length > 0) {
+          toast.error(`${data.name} has already checked in for ${service.label}`);
+          return null;
+        }
+        request('logs_kids', 'CREATE', {
+          ...data,
+          action: 'Check-in',
+          date: moment(timestamp).format('MMMM DD, YYYY'),
+          time: moment(timestamp).format('hh:mm:ss A'),
+          timestamp: timestamp.toLocaleString('en-US'),
+          service: service.label
+        }).then((response) => {
+          toast.success(`${data.name} has successfully checked in for ${service.label}`);
+        }, (error) => {
+          toast.error(error);
+        });
+      }, (error) => {
+        toast.error(error);
+      });
+    };
+
+    logQueue = logQueue.then(newLog)
+      .catch((error) => {
+        toast.error(error);
+      });
+
+    return logQueue;
+  };
+
   const checkIn = async (code) => {
     try {
-      if(!service){
+      if (!service) {
         toast.error("No service available at this time");
         return null;
       }
-      const data = JSON.parse(await request('kids', 'GET', {id: code}));
-      if (!data.name) {
-        toast.error("Kid's data not found");
-        return null;
+      var data = kids.find(kid => kid.id == code);
+
+      if (!data) {
+        toast.info('Fetching child data with ID: ' + code);
+        data = JSON.parse(await request('kids', 'GET', { id: code }));
+        if (!data.name) {
+          toast.error("Kid's data not found");
+          return null;
+        }
+
+        request('kids', 'GETALL', { status: 'Active' })
+          .then((response) => {
+            kids = JSON.parse(response);
+          }, error => { toast.error(error) });
       }
-      request('logs_kids', 'SEARCH', {
-        id: code, 
-        action: 'Check-in', 
-        date: moment(timestamp).format('MMMM DD, YYYY'),
-        service: service.label
-      }).then((response)=>{
-         const logs = JSON.parse(response);
-         if (logs.length > 0) {
-          toast.error(`${data.name} has already logged in for ${service.label}`);
-          return;
-         }
-          request('logs_kids', 'CREATE', {
-            ...data,
-            action: 'Check-in',
-            date: moment(timestamp).format('MMMM DD, YYYY'),
-            time: moment(timestamp).format('hh:mm:ss A'),
-            timestamp: timestamp.toLocaleString('en-US'),
-            service: service.label
-          }).then((response)=>{
-            toast.success(`${data.name} has successfully checked in for ${service.label}`);
-          }, (error) => {toast.error(error)});
-      }, (error) => {toast.error(error)});
+
+      sendLog(code, data);
 
       const query = {
         "id": code,
@@ -66,40 +103,43 @@ const handleKidScan = async (action, code, timestamp, request) => {
         "level": data.level,
         "timestamp": timestamp.toLocaleString('en-US')
       };
-
-      const url = "https://api.rivaschristianacademy.com/nxtgen/checkin/json";
-      const link = url + "?" + new URLSearchParams(query).toString();
-
       const logData = {
         header: "Check-in",
         id: data.id,
         name: data.name,
         level: data.level,
-        timestamp: timestamp.toLocaleString('en-US'),
-        anchorLink: {
+        timestamp: timestamp.toLocaleString('en-US')
+      };
+
+      const url = "https://api.rivaschristianacademy.com/nxtgen/checkin/json";
+      const link = url + "?" + new URLSearchParams(query).toString();
+      const os = utils.getMobileOperatingSystem().trim()
+      if (os.toLowerCase().trim() === 'android') {
+        logData.anchorLink = {
           link: "my.bluetoothprint.scheme://" + link,
           label: "Print Receipt"
         }
-      };
+      } else if (os.toLowerCase().trim() === 'macos') {
+        logData.anchorLink = {
+          link: "bprint://" + link,
+          label: "Print Receipt",
+          target: "_blank",
+          rel: "noopener noreferrer"
+        }
+      }
 
       return logData;
     } catch (error) {
-      console.error(error);
       toast.error(error);
-      return null
+      return null;
     }
-  }
+  };
 
   const checkOut = async (code) => {
     try {
-      if(!service){
-        toast.error("No service available at this time");
-        return null;
-      }
       const data = JSON.parse(await request('logs_kids', 'SEARCH', {
         id: code,
         date: moment(timestamp).format('MMMM DD, YYYY'),
-        service: service.label,
       }));
       if (data.length === 0) {
         toast.error("Check out expired or check in not found");
@@ -109,14 +149,13 @@ const handleKidScan = async (action, code, timestamp, request) => {
         filters: {
           id: code,
           date: moment(timestamp).format('MMMM DD, YYYY'),
-          service: service.label,
         },
         updates: {
           time_out: timestamp.toLocaleString('en-US')
         }
       }).then(
-        (response)=>{toast.info(`Checkout successful for ${data[0].name}`)}, 
-        (error) => {toast.error(error)}
+        (response) => { toast.info(`Checkout successful for ${data[0].name}`) },
+        (error) => { toast.error(error) }
       );
 
       const logData = {

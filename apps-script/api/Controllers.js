@@ -1,7 +1,7 @@
 function createRow(entity, data) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
 
   var row = sheet.getLastRow() + 1;
@@ -24,7 +24,7 @@ function createRow(entity, data) {
 function createUniqueRow(entity, data, index) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
 
   const headers = utils.headers(sheet);
@@ -51,7 +51,7 @@ function createUniqueRow(entity, data, index) {
 function updateRow(entity, data) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
 
   var row = data.row ? parseInt(data.row, 10) : null;
@@ -116,7 +116,7 @@ function updateRows(entity, filters, data) {
 function updateUniqueRow(entity, data, index) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   var id = parseInt(data.id, 10);
 
@@ -152,7 +152,7 @@ function updateRowProfile(entity, data) {
 
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const headers = utils.headers(sheet);
   const colIndex = headers.indexOf(index) + 1;
@@ -189,7 +189,7 @@ function changePassword(entity, data) {
 
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const headers = utils.headers(sheet);
 
@@ -221,7 +221,7 @@ function resetPassword(entity, data) {
 
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const headers = utils.headers(sheet);
 
@@ -250,19 +250,19 @@ function readRow(entity, id) {
   var row = id + 1;
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const cols = utils.colCount(sheet);
   const headers = utils.headers(sheet);
   const data = sheet.getRange(row, 1, 1, cols).getValues();
-  
-  return transform(entity, data[0], id , headers);
+
+  return transform(entity, data[0], id, headers);
 }
 
 function search(entity, filters) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const data = sheet.getDataRange().getValues();
   const headers = data.shift();
@@ -275,7 +275,11 @@ function search(entity, filters) {
       if (filters[key] === undefined || filters[key] === null) {
         return true;
       }
-      return row[key] && row[key].toString().toLowerCase().includes(filters[key].toString().toLowerCase());
+      if (key === 'id') {
+        return row[key] == filters[key]; // Ensure exact matching for id
+      }
+      // return row[key] && row[key].toString().toLowerCase().includes(filters[key].toString().toLowerCase());
+      return row[key] && row[key].toString().toLowerCase() === filters[key].toString().toLowerCase();
     });
   });
 
@@ -291,18 +295,18 @@ function readRowProfile(entity, id) {
   var row = id + 1;
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const cols = utils.colCount(sheet);
   const headers = utils.headers(sheet);
   const data = sheet.getRange(row, 1, 1, cols).getDisplayValues();
-  return transform(entity, data[0], id , headers);
+  return transform(entity, data[0], id, headers);
 }
 
 function getFirstTimers(entity, data) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const headers = utils.headers(sheet);
   const dataRange = sheet.getDataRange().getValues();
@@ -332,7 +336,7 @@ function getFirstTimers(entity, data) {
 function getBirthday(entity, data) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const headers = utils.headers(sheet);
   const dataRange = sheet.getDataRange().getValues();
@@ -373,7 +377,7 @@ function checkRow(entity, id) {
   var row = id + 1;
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const cols = utils.colCount(sheet);
   const data = sheet.getRange(row, 1, 1, cols).getValues();
@@ -384,7 +388,7 @@ function checkRow(entity, id) {
 function readAll(entity, filters = {}) {
   const sheet = spreadsheet.getSheetByName(entity);
   if (sheet === null) {
-    throw new Error(utils.properCase(entity) +' sheet not found');
+    throw new Error(utils.properCase(entity) + ' sheet not found');
   }
   const data = sheet.getDataRange().getValues();
   const headers = data.shift();
@@ -400,7 +404,7 @@ function readAll(entity, filters = {}) {
       if (key === 'id') {
         return row[key] == filters[key];
       }
-      
+
       return row[key] && row[key].toString().toLowerCase().includes(filters[key].toString().toLowerCase());
     });
   });
@@ -466,4 +470,22 @@ function countRows(entity, filters = {}) {
   });
 
   return filteredResults.length;
+}
+
+function deleteRow(entity, id) {
+  id = parseInt(id, 10);
+  if (id === '' || id === undefined || !Number.isInteger(id)) {
+    throw new Error('Invalid id field');
+  }
+  //skip the header row
+  var row = id + 1;
+  const sheet = spreadsheet.getSheetByName(entity);
+  if (sheet === null) {
+    throw new Error(utils.properCase(entity) + ' sheet not found');
+  }
+  const cols = utils.colCount(sheet);
+  const range = sheet.getRange(row, 1, 1, cols);
+  range.clearContent();
+
+  return true;
 }

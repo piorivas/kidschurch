@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function DynamicModal({ title, message, closable, onClose }){
+export default function DynamicModal({ title, message, closable, onClose, children }){
   return (
     <>
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 z-40"></div>
@@ -13,6 +13,7 @@ export default function DynamicModal({ title, message, closable, onClose }){
             </svg>)}
           </div>
           <div className="text-sm text-gray-500 mb-4">{message}</div>
+          {children}
         </div>
       </div>
     </>

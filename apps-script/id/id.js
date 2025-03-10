@@ -14,6 +14,7 @@ kidsIdSlides = SlidesApp.openById(
 // );
 
 function generateIds(entity, ids, token) {
+  console.log('parameter ids: ', ids);
   if (!hasAccess(token, entity, 'view')) {
     throw new Error('Unauthorized');
   }
@@ -112,6 +113,7 @@ function createBackPage(slides, batchData) {
           left_offset + 9.72, top_offset + 61.2, 79.92, 79.92
         );
       }
+      console.log('childsDetails: ', childsDetails);
       var nameBox = slide.insertTextBox(childsDetails.id + '. ' + childsDetails.name, left_offset + 7.56, top_offset + 3.6, 227.52, 15.12);
       setTextStyle(nameBox, 'Century Gothic', 10, '#000000');
       var parentBox = slide.insertTextBox(childsDetails.parent || ' ', left_offset + 7.56, top_offset + 24.48, 227.52, 15.12);

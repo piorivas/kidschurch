@@ -3,8 +3,8 @@ function transform(entity, data, id, headers) {
   object.id = id;
   headers.forEach((header, index) => {
     if (['date', 'birthday', 'timestamp', 'time'].includes(header)) {
-      let dateValue = new Date(data[header] || data[index]);
-      if (dateValue instanceof Date) {
+      if (data[header] || data[index]) {
+        let dateValue = new Date(data[header] || data[index]);
         // Handle specific formats for different types
         if (header === 'timestamp') {
           object[header] = Utilities.formatDate(dateValue, "Asia/Manila", "MMMM d, yyyy hh:mm a");
@@ -25,9 +25,13 @@ function transform(entity, data, id, headers) {
   });
 
   if (entity === 'kids') {
-    let birthday = new Date(object.birthday);
-    object.birthday = isNaN(birthday.getTime()) ? '' : birthday.toLocaleDateString('en-US', utils.dateFormat);
-    object.level = utils.getLevel(object.birthday);
+    if(object.birthday === '') {
+      object.level = '';
+    } else {
+      let birthday = new Date(object.birthday);
+      object.birthday = isNaN(birthday.getTime()) ? '' : birthday.toLocaleDateString('en-US', utils.dateFormat);
+      object.level = utils.getLevel(object.birthday);
+    }
   }
 
   return JSON.stringify(object);

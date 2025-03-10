@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useDatabase from "../../hooks/useDatabase";
 import moment from "moment";
+import DynamicModal from "../Modal/DynamicModal";
 
 export const KidDetails = () => {
+    const navigate = useNavigate();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const dateFormat = { year: 'numeric', month: 'long', day: '2-digit' };
     const params = useParams();
     const [isEditing, setIsEditing] = useState(false);
@@ -104,6 +107,16 @@ export const KidDetails = () => {
 
     const setFomatedDate = (date) => {
         setBirthday(new Date(date).toLocaleDateString('en-US', dateFormat));
+    }
+
+    const deleteKid = async () => {
+        try {
+            await request('kids', 'DELETE', {id: id});
+            navigate('/kids');
+        }
+        catch (error) {
+            console.error("Failed to delete kid: ", error);
+        }
     }
 
     return (
@@ -213,8 +226,25 @@ export const KidDetails = () => {
                             </svg>
                             )}
                         </a>
+                        <a
+                            onClick={() => {setShowDeleteModal(true)}}
+                            className="inline-flex items-center py-2 px-4 text-sm font-medium text-center text-gray-900 bg-red-100 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
+                        >
+                            Delete
+                        </a>
                     </div>
                 </div>  
+                { showDeleteModal && (
+                    <DynamicModal title="Delete Kid" message="Are you sure you want to delete this kid?" closable={true} onClose={() => setShowDeleteModal(false)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                        <p className="text-lg text-red">Permanently remove this Kids information in Records. This action cannot be undone.</p>
+                        <div className="flex justify-end">
+                            <button className="px-4 py-2 bg-red-500 text-white rounded-lg" onClick={() => deleteKid()}>Delete</button>
+                        </div>
+                    </DynamicModal>
+                )}
             </div>
         </form>
     );

@@ -11,6 +11,7 @@ export const AttendanceCheckIn = ({ date:paramDate , service:paramService, onClo
     const [children, setChildren] = useState([]);
     const { request } = useDatabase();
     const [loading, setLoading] = useState(false);
+
     const services = {
         "First Service" : {
             label: "First Service",
@@ -44,20 +45,28 @@ export const AttendanceCheckIn = ({ date:paramDate , service:paramService, onClo
             if (id === '') {
                 throw new Error('Select a child');
             }
+            setLoading(true);
             const data = JSON.parse(await request('kids', 'GET', {id: id}));
             if (!data.name) {
+                setLoading(false);
                 throw new Error("Kids data not found");
             }
-            setLoading(true);
             await request('logs_kids', 'CREATE', {
                 ...data,
                 action: 'Check-in',
                 date: new Date(date).toLocaleDateString('en-US', utils.dateFormat),
                 time: services[service].value,
-                timestamp: moment(date).format('M/D/YYYY, ') + services[service].value
+                timestamp: moment(date).format('M/D/YYYY, ') + services[service].value,
+                service: services[service].label,
             });
             setLoading(false);
             onClose();
+            printStub({
+                id : data.id,
+                name: data.name,
+                level: data.level,
+                timestamp: moment(date).format('M/D/YYYY, ') + services[service].value
+            });
         } catch (error) {
             setLoading(false);
             console.error(error);
