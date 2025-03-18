@@ -27,6 +27,8 @@ function apiFetch(entity, method, body = {}, token = null)
   } else if ('CREATE' == method) {
     validateAccess(entity, 'create');
     return createRow(entity, body);
+  } else if ('DELETEREQEST' == method) {
+    return createRow(entity, body);
   } else if ('GETLAST' == method) {
     return readLast(entity, body);
   } else if ('GETCOUNT' == method) {

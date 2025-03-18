@@ -14,6 +14,7 @@ import { Attendance } from './components/Pages/Attendance'
 import { AttendancePrint } from './components/Pages/AttendancePrint'
 import { Login } from './components/Pages/Login'
 import { PrivacyPolicy } from './components/Pages/PrivacyPolicy'
+import { KidDelete } from './components/Pages/KidDelete'
 import Nav from './components/Nav'
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/login" />} />
+                <Route path="/delete" element={<KidDelete />} />
                 </>
             )}
             {isLoggedIn && (
@@ -69,12 +71,13 @@ function App() {
                 {access?.kids?.includes('view') && <Route path="/kids/:id" element={<KidDetails />} />}
                 {access?.kids?.includes('view') && <Route path="/kids/print" element={<KidIds />} />}
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/delete" element={<KidDelete />} />
                 </>
             )}
             <Route path="/register" element={<KidSignUp />} />
             <Route path="/register/:id" element={<KidSignUp />} />
         </Routes>
-        <div className="flex-col h-16 bg-gray-800 text-black">
+        <div className="flex-col h-16 bg-gray-50 text-black">
             <p className=" flex justify-center text-sm ml-4 text-gray-400">
               <span>&copy; 2025 NXTGEN Kids Church Ministry</span>
             </p>
