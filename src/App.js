@@ -16,6 +16,7 @@ import { Login } from './components/Pages/Login'
 import { PrivacyPolicy } from './components/Pages/PrivacyPolicy'
 import { KidDelete } from './components/Pages/KidDelete'
 import Nav from './components/Nav'
+import { VolunteerIds } from './components/Pages/VolunteerIds'
 
 function App() {
   var token = window.localStorage.getItem('nxtgen.token');
@@ -66,6 +67,7 @@ function App() {
                 <Route path="/profile" element={<VolunteerProfile />} />
                 {access?.users?.includes('view') && <Route path="/volunteers" element={<Volunteers />} />}
                 {access?.users?.includes('view') && <Route path="/volunteers/:id" element={<VolunteerDetails />} />}
+                {access?.users?.includes('view') && <Route path="/volunteers/print" element={<VolunteerIds />} />}
                 {access?.users?.includes('view') && <Route path="/signup" element={<VolunteerSignUp />} />}
                 {access?.kids?.includes('view') && <Route path="/kids" element={<Kids />} />}
                 {access?.kids?.includes('view') && <Route path="/kids/:id" element={<KidDetails />} />}

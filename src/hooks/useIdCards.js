@@ -31,7 +31,23 @@ const useIdCards = () => {
     });
   },[]);
 
-  return { generateIds, getPdfUrl };
+  const getSlidesId = useCallback (async (entity) => {
+    const token = window.localStorage.getItem('nxtgen.token');
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((response) => {
+          resolve(response);
+        })
+        .withFailureHandler((error) => {
+          console.error(error);
+          reject(error);
+        })
+        .getSlidesId(entity, token);
+    });
+  }
+  ,[]);
+
+  return { generateIds, getPdfUrl, getSlidesId };
 }
 
 export default useIdCards;

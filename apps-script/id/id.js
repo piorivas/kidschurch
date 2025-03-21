@@ -9,9 +9,11 @@ const LEFT_OFFSET_BACK = 55.8;
 kidsIdSlides = SlidesApp.openById(
   PropertiesService.getScriptProperties().getProperty('kids_id_slides')
 );
-// usersIdSlides = SlidesApp.openById(
-//   PropertiesService.getScriptProperties().getProperty('users_id_slides')
-// );
+usersIdSlides = SlidesApp.openById(
+  PropertiesService.getScriptProperties().getProperty('users_id_slides')
+);
+kidsSlidesEmbed = PropertiesService.getScriptProperties().getProperty('kids_slides_embed');
+usersSlidesEmbed = PropertiesService.getScriptProperties().getProperty('users_slides_embed');
 
 function generateIds(entity, ids, token) {
   console.log('parameter ids: ', ids);
@@ -19,10 +21,17 @@ function generateIds(entity, ids, token) {
     throw new Error('Unauthorized');
   }
   var data = ids.map((id) => {
-    return JSON.parse(apiFetch('kids', 'GET', {id:id}) || {id: id});
+    return JSON.parse(apiFetch(entity, 'GET', {id:id}) || {id: id});
   });
-  console.log(data);
-  
+
+  if (entity === 'kids') {
+    createKidsIdSlidesPages(data, entity);
+  }else if (entity === 'users') {
+    createVolunteerIdSlidesPages(data, entity);
+  }
+}
+
+function createKidsIdSlidesPages(data, entity) {
   removeAllSlides(kidsIdSlides);
 
   //batch = set of ids in a page including front and back pages
@@ -32,8 +41,22 @@ function generateIds(entity, ids, token) {
       (batch - 1) * COLS * ROWS,
       batch * COLS * ROWS
     );
-    createFrontPage(kidsIdSlides, batchData);
+    createFrontPage(kidsIdSlides, batchData, entity);
     createBackPage(kidsIdSlides, batchData);
+  }
+}
+
+function createVolunteerIdSlidesPages(data, entity) {
+  removeAllSlides(usersIdSlides);
+
+  //batch = set of ids in a page including front and back pages
+  const batches = Math.ceil(data.length / (COLS * ROWS));
+  for (var batch = 1; batch <= batches; batch++) {
+    var batchData = data.slice(
+      (batch - 1) * COLS * ROWS,
+      batch * COLS * ROWS
+    );
+    createFrontPage(usersIdSlides, batchData, entity);
   }
 }
 
@@ -44,9 +67,25 @@ function getPdfUrl(entity, token) {
   var slides = null;
   if (entity === 'kids') {
     slides = kidsIdSlides;
+  }else if (entity === 'users') {
+    slides = usersIdSlides;
   }
   
   return 'https://docs.google.com/presentation/d/' + slides.getId() + '/export/pdf';
+}
+
+function getSlidesId(entity, token) {
+  if (!hasAccess(token, entity, 'view')) {
+    throw new Error('Unauthorized');
+  }
+  var slides = null;
+  if (entity === 'kids') {
+    return kidsSlidesEmbed;
+  }else if (entity === 'users') {
+    return usersSlidesEmbed;
+  }
+  
+  return null;
 }
 
 function setTextStyle(textBox, fontFamily, fontSize, color, bold = false) {
@@ -58,7 +97,7 @@ function setTextStyle(textBox, fontFamily, fontSize, color, bold = false) {
   textBox.getText().getParagraphStyle().setSpaceAbove(0);
 }
 
-function createFrontPage(slides, batchData) {
+function createFrontPage(slides, batchData, entity) {
   const slide = slides.appendSlide(getLayout(slides, 'CUSTOM_1_1'));
   var left_offset, top_offset;
   var counter = 0;
@@ -69,19 +108,19 @@ function createFrontPage(slides, batchData) {
       }
       left_offset = LEFT_OFFSET + j * (CARD_WIDTH);
       top_offset = TOP_OFFSET + i * (CARD_HEIGHT);
-      var childsDetails = batchData[counter];
+      var entityDetails = batchData[counter];
       slide.insertImage(
-        generateBarcode('Please use the NxtGen App QR scanner||kids||Check-in||' + childsDetails.id), 
+        generateBarcode('Please use the NxtGen App QR scanner||' + entity + '||Check-in||' + entityDetails.id), 
         left_offset + 9, top_offset + 51.7, 95, 95
       );
-      var name =  (childsDetails.name || ' ')
+      var name =  (entityDetails.name || ' ')
           .split(' ').slice(0, 2).join(' ');
       var nameBox = slide.insertTextBox(name, left_offset + 103.32, top_offset + 46.1, 128, 73);
       nameBox.getText().getParagraphStyle().setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
       nameBox.setContentAlignment(SlidesApp.ContentAlignment.MIDDLE);
       setTextStyle(nameBox, 'Century Gothic', 20, '#000000', true);
       setFontSizeToFit(nameBox, 'Century Gothic', 20, 8);
-      var idBox = slide.insertTextBox(childsDetails.id || ' ', left_offset + 103, top_offset + 120, 129, 32);
+      var idBox = slide.insertTextBox(entityDetails.id || ' ', left_offset + 103, top_offset + 120, 129, 32);
       idBox.getText().getParagraphStyle().setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
       idBox.setContentAlignment(SlidesApp.ContentAlignment.MIDDLE);
       setTextStyle(idBox, 'Century Gothic', 13, '#FFFFFF', true);

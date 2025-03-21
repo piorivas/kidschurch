@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import useIdCards from "../../hooks/useIdCards";
 import ModalLogin from "../Modal/ModalLogin";
 
-export const KidIds = () => {
-    const { generateIds, getPdfUrl, getSlidesId} = useIdCards();
+
+export const VolunteerIds = () => {
+    const { generateIds, getPdfUrl, getSlidesId } = useIdCards();
     const [idRange, setIdRange] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingPdf, setLoadingPdf] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [slide, setSlide] = useState(null);
-    
+
     useEffect(() => {
         const getSlide = async () => {
-            const slideId = await getSlidesId('kids');
+            const slideId = await getSlidesId('users');
             setSlide('https://docs.google.com/presentation/d/e/' + slideId + '/embed?start=false&loop=false&delayms=60000');
             console.log('slideId: ' + slideId);
         }
@@ -37,7 +38,7 @@ export const KidIds = () => {
 
                 return ids;
             }
-            await generateIds('kids', getIds(idRange));
+            await generateIds('users', getIds(idRange));
             setLoading(false);
             document.getElementById('slides-iframe').src += '';
         } catch (error) {
@@ -52,7 +53,7 @@ export const KidIds = () => {
     const print = async () => {
         try {
             setLoadingPdf(true);
-            window.open(await getPdfUrl('kids'), '_blank');
+            window.open(await getPdfUrl('users'), '_blank');
             setLoadingPdf(false);
         } catch (error) {
             console.error('error message' + error.message);
@@ -63,11 +64,13 @@ export const KidIds = () => {
         }
     }
 
+    
+
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div className="p-2 pt-5 gap-2 flex items-center w-full md:w-auto">
-                    <h1 className="text-2xl flex-grow md:flex-grow-0">Kid's Registration IDs</h1>
+                    <h1 className="text-2xl flex-grow md:flex-grow-0">Volunteer IDs</h1>
                 </div>
             </div>
             <div className="p-2 pt-5 gap-2 flex items-center justify-center w-full md:w-auto">
@@ -106,4 +109,4 @@ export const KidIds = () => {
             {showLoginModal && <ModalLogin isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />}
         </div>
     );
-}
+};
