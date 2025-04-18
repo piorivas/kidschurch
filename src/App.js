@@ -49,7 +49,7 @@ function App() {
             {!isLoggedIn && (
                 <>
                 <Route path="/login" element={<Login />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/privacy-policy/show" element={<PrivacyPolicy />} />
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to="/login" />} />
                 <Route path="/delete" element={<KidDelete />} />
@@ -72,7 +72,7 @@ function App() {
                 {access?.kids?.includes('view') && <Route path="/kids" element={<Kids />} />}
                 {access?.kids?.includes('view') && <Route path="/kids/:id" element={<KidDetails />} />}
                 {access?.kids?.includes('view') && <Route path="/kids/print" element={<KidIds />} />}
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/privacy-policy/show" element={<PrivacyPolicy />} />
                 <Route path="/delete" element={<KidDelete />} />
                 </>
             )}

@@ -41,7 +41,6 @@ function apiFetch(entity, method, body = {}, token = null)
   } else if ('GETPROFILE' == method ) {
     return readRowProfile(entity);
   } else if ('UPDATEPROFILE' == method ) {
-    validateAccess(entity, 'update');
     return updateRowProfile(entity, body);
   } else if ('CHANGEPASSWORD' == method ) {
     return changePassword(entity, body);

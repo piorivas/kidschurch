@@ -33,9 +33,9 @@ export const Kids = () => {
   useEffect(() => {
     setFilteredKids(kids.filter(kid =>
       (
-        kid.name.toLowerCase().includes(searchTerm.toLowerCase()) 
-        || kid.parent.toLowerCase().includes(searchTerm.toLowerCase())
-        || kid.nickname.toLowerCase().includes(searchTerm.toLowerCase())
+        (typeof kid.name === "string" && kid.name.toLowerCase().includes(searchTerm.toLowerCase())) 
+        || (typeof kid.parent === "string" && kid.parent.toLowerCase().includes(searchTerm.toLowerCase()))
+        || (typeof kid.nickname === "string" && kid.nickname.toLowerCase().includes(searchTerm.toLowerCase()))
       ) &&
       (showActive ? kid.status === "Active" : true)
     ));

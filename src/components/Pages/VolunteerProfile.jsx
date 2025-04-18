@@ -7,6 +7,7 @@ export const VolunteerProfile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [loadingSave, setLoadingSave] = useState(false);
     const [name, setName] = useState("Loading...");
+    const [nickname, setNickname] = useState("...");
     const [id, setId] = useState('...');
     const [birthday, setBirthday] = useState("...");
     const { request } = useDatabase();
@@ -28,6 +29,7 @@ export const VolunteerProfile = () => {
                 const data = JSON.parse(response);
                 setId(data.id);
                 setName(data.name);
+                setNickname(data.nickname);
                 setBirthday(new Date(data.birthday).toLocaleDateString('en-CA')); // Use 'en-CA' for ISO format (YYYY-MM-DD)
                 setDleader(data.dleader);
                 setDleaderContact(data.dleader_contact);
@@ -56,6 +58,7 @@ export const VolunteerProfile = () => {
             await request('users', 'UPDATEPROFILE', {
                 id: id,
                 name: name,
+                nickname: nickname,
                 dleader: dleader,
                 dleader_contact: dleader_contact,
                 birthday: birthday,
@@ -154,6 +157,16 @@ export const VolunteerProfile = () => {
                                             value={name} onChange={(e) => setName(e.target.value)}
                                         />
                                     : name }
+                                </span>
+                            </li>
+                            <li className="flex items-center py-3 text-sm">
+                                <span>Nickname</span>
+                                <span className="ml-auto">
+                                    { isEditing ? 
+                                        <input type="text" placeholder="Nickname" className="text-sm border-gray-300 border-b-2 focus:ring-4 focus:ring-blue-300"
+                                            value={nickname} onChange={(e) => setNickname(e.target.value)}
+                                        />
+                                    : nickname }
                                 </span>
                             </li>
                             <li className="flex items-center py-3 text-sm">

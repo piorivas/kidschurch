@@ -23,7 +23,7 @@ function generateIds(entity, ids, token) {
   var data = ids.map((id) => {
     return JSON.parse(apiFetch(entity, 'GET', {id:id}) || {id: id});
   });
-
+  console.log('data: ', data);
   if (entity === 'kids') {
     createKidsIdSlidesPages(data, entity);
   }else if (entity === 'users') {
@@ -109,11 +109,12 @@ function createFrontPage(slides, batchData, entity) {
       left_offset = LEFT_OFFSET + j * (CARD_WIDTH);
       top_offset = TOP_OFFSET + i * (CARD_HEIGHT);
       var entityDetails = batchData[counter];
+      console.log('entityDetails: ', entityDetails);
       slide.insertImage(
         generateBarcode('Please use the NxtGen App QR scanner||' + entity + '||Check-in||' + entityDetails.id), 
         left_offset + 9, top_offset + 51.7, 95, 95
       );
-      var name =  (entityDetails.name || ' ')
+      var name =  (entityDetails.nickname || entityDetails.name || ' ')
           .split(' ').slice(0, 2).join(' ');
       var nameBox = slide.insertTextBox(name, left_offset + 103.32, top_offset + 46.1, 128, 73);
       nameBox.getText().getParagraphStyle().setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
@@ -152,7 +153,6 @@ function createBackPage(slides, batchData) {
           left_offset + 9.72, top_offset + 61.2, 79.92, 79.92
         );
       }
-      console.log('childsDetails: ', childsDetails);
       var nameBox = slide.insertTextBox(childsDetails.id + '. ' + childsDetails.name, left_offset + 7.56, top_offset + 3.6, 227.52, 15.12);
       setTextStyle(nameBox, 'Century Gothic', 10, '#000000');
       var parentBox = slide.insertTextBox(childsDetails.parent || ' ', left_offset + 7.56, top_offset + 24.48, 227.52, 15.12);
