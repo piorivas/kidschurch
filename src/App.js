@@ -84,7 +84,7 @@ function App() {
               <span>&copy; 2025 NXTGEN Kids Church Ministry</span>
             </p>
             <p className="flex justify-center text-sm ml-4 text-gray-400">
-                <Link to="/privacy-policy" className="hover:text-gray-300">Privacy Policy</Link>
+                <Link to="/privacy-policy/show" className="hover:text-gray-300">Privacy Policy</Link>
             </p>
         </div>
     </>
